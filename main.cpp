@@ -49,6 +49,8 @@ void balanes()
     cvtColor(balanes, balanes, COLOR_BGR2GRAY);
     threshold(frame, seuillage, 0, 255, THRESH_BINARY + THRESH_OTSU);
     morphologyEx(seuillage, erosion, MORPH_ERODE, getStructuringElement(MORPH_RECT, Size(11, 11)));
+    cv::imshow("erosion", erosion);
+    cv::imshow("seuillage", seuillage);
     const Mat& rec = imreconstruct(erosion, seuillage);
     Mat origin;
     bitwise_and(rec, balanes, origin);
@@ -62,9 +64,36 @@ void balanes()
     waitKey();
 }
 
+void pois()
+{
+    Mat pois = cv::imread(IMAGE_PATH("petitsPois.png"));
+    Mat *caneaux = new Mat[3];
+    Mat red, blue, redNeg, blueNeg;
+    cv::imshow("poids", pois);
+
+    split(pois, caneaux);
+    red = caneaux[0];
+    blue = caneaux[2];
+    delete[] caneaux;
+
+    threshold(red, redNeg, 0, 255, THRESH_BINARY_INV);
+    threshold(blue, blueNeg, 0, 255, THRESH_BINARY_INV);
+
+    morphologyEx(redNeg, red, MORPH_ERODE, getStructuringElement(MORPH_RECT, Size(11, 11)));
+    morphologyEx(blueNeg, blue, MORPH_ERODE, getStructuringElement(MORPH_RECT, Size(11, 11)));
+
+    red = imreconstruct(red, redNeg);
+    blue = imreconstruct(blue, blueNeg);
+    
+
+    cv::imshow("red", red);
+    cv::imshow("blue", blue);
+    waitKey();
+}
+
 int main(int argc, const char* argv[])
 {
-    balanes();
+    pois();
     //    Mat lena = cv::imread("/Users/jordanmeurant/CLionProjects/Vision1/ImagesEtape5/vaisseaux.jpg");
     //    Mat frame = lena.clone();
     //
