@@ -9,18 +9,20 @@
 using namespace cv;
 using namespace cvui;
 void tools(){
-    Mat frame;
+
     Mat tools = cv::imread("/Users/jordanmeurant/CLionProjects/Vision1/ImagesEtape5/tools.png");
+    Mat frame, out,opening, th;
+
     cvtColor(tools,frame, COLOR_BGR2GRAY);
-    equalizeHist(frame,frame);
+    cv::imshow("Image tools", tools);
 
-    cv::imshow("tools", tools);
-    cv::imshow("tools_gray", frame);
-    morphologyEx(frame,frame, MORPH_OPEN, getStructuringElement(MORPH_RECT, Size(21,21)));
-    cv::imshow("opening", frame);
+    morphologyEx(frame,opening, MORPH_OPEN, getStructuringElement(MORPH_RECT, Size(21,21)));
+    subtract(frame, opening, frame);
+    cv::imshow("Image after opening", frame);
+
+    threshold(frame, th, 0, 255, THRESH_BINARY + THRESH_OTSU);
+    cv::imshow("Result", th);
     waitKey();
-
-
 
 }
 
