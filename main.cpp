@@ -1,9 +1,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <iostream>
 
 #define CVUI_IMPLEMENTATION
-
 #include "cvui.h"
 
 using namespace std;
@@ -29,7 +27,7 @@ Mat imreconstruct(Mat &image, Mat &mask, int radius = 3) {
 void tools() {
 
     Mat tools = cv::imread("/Users/jordanmeurant/CLionProjects/Vision1/ImagesEtape5/tools.png");
-    Mat frame, out, opening, th;
+    Mat frame, out,opening, th;
 
     cvtColor(tools, frame, COLOR_BGR2GRAY);
     cv::imshow("Image tools", tools);
