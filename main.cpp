@@ -1,35 +1,78 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <iostream>
 
 #define CVUI_IMPLEMENTATION
+
 #include "cvui.h"
 
-#define WINDOW_NAME	"CVUI Test"
+using namespace std;
+
+#define WINDOW_NAME    "CVUI Test"
+#define IMAGE_PATH(filename) std::string("/Users/jordanmeurant/CLionProjects/Vision1/ImagesEtape5/") + filename
 
 using namespace cv;
 using namespace cvui;
-void tools(){
+
+Mat imreconstruct(Mat &image, Mat &mask, int radius = 3) {
+    int counter = 0;
+    while (1) {
+        Mat mat;
+        morphologyEx(image, mat, MORPH_DILATE, getStructuringElement(MORPH_ELLIPSE, Size(radius, radius)));
+        bitwise_and(mat, mask, mat);
+        if (countNonZero(image) == countNonZero(mat))
+            return mat;
+        image = mat;
+    }
+}
+
+void tools() {
 
     Mat tools = cv::imread("/Users/jordanmeurant/CLionProjects/Vision1/ImagesEtape5/tools.png");
-    Mat frame, out,opening, th;
+    Mat frame, out, opening, th;
 
-    cvtColor(tools,frame, COLOR_BGR2GRAY);
+    cvtColor(tools, frame, COLOR_BGR2GRAY);
     cv::imshow("Image tools", tools);
 
-    morphologyEx(frame,opening, MORPH_OPEN, getStructuringElement(MORPH_RECT, Size(21,21)));
+    morphologyEx(frame, opening, MORPH_OPEN, getStructuringElement(MORPH_ELLIPSE, Size(21, 21)));
     subtract(frame, opening, frame);
     cv::imshow("Image after opening", frame);
 
     threshold(frame, th, 0, 255, THRESH_BINARY + THRESH_OTSU);
     cv::imshow("Result", th);
     waitKey();
+}
 
+void balanes() {
+    Mat frame, seuillage, erosion;
+    Mat balanes = cv::imread(IMAGE_PATH("balanes.png"));
+    cvtColor(balanes, frame, COLOR_BGR2GRAY);
+    cvtColor(balanes, balanes, COLOR_BGR2GRAY);
+
+    threshold(frame, seuillage, 0, 255, THRESH_BINARY + THRESH_OTSU);
+    cv::imshow("GRAND ", seuillage);
+    morphologyEx(seuillage, erosion, MORPH_OPEN, getStructuringElement(MORPH_ELLIPSE, Size(15, 15)));
+    const Mat &rec = imreconstruct(erosion, seuillage);
+
+
+    Mat grandesBalanes;
+    bitwise_and(rec, balanes, grandesBalanes);
+    cv::imshow("GRAND Balanes", grandesBalanes);
+
+    Mat petitesBalanes;
+    subtract(seuillage, rec, petitesBalanes);
+    morphologyEx(petitesBalanes, petitesBalanes, MORPH_OPEN, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
+
+    Mat reconstructionPetitesBalanes = imreconstruct(petitesBalanes, seuillage);
+    bitwise_and(reconstructionPetitesBalanes, balanes, petitesBalanes);
+    cv::imshow("PETITES Balanes", petitesBalanes);
+    waitKey();
 }
 
 
-int main(int argc, const char *argv[])
-{
-    tools();
+int main(int argc, const char *argv[]) {
+    //tools();
+    balanes();
 //    Mat lena = cv::imread("/Users/jordanmeurant/CLionProjects/Vision1/ImagesEtape5/vaisseaux.jpg");
 //    Mat frame = lena.clone();
 //
