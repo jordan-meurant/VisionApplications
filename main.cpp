@@ -66,18 +66,37 @@ void balanes() {
     cv::imshow("PETITES Balanes", petitesBalanes);
     waitKey();
 }
+void pois2(){
+    Mat pois = cv::imread(IMAGE_PATH("petitsPois.png"));
+    Mat channels[3], poidsBleus, poidsRouges;;
+    split(pois, channels);
+    cvtColor(pois, pois, COLOR_BGR2GRAY);
+
+    bitwise_not(pois,pois);
+    cv::imshow("poids", pois);
+
+    threshold(channels[0], poidsBleus, 0, 255, THRESH_BINARY_INV);
+    morphologyEx(poidsBleus, poidsBleus, MORPH_ERODE, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
+
+    threshold(channels[2], poidsRouges, 0, 255, THRESH_BINARY_INV);
+    morphologyEx(poidsRouges, poidsRouges, MORPH_ERODE, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
+
+    cv::imshow("Poids bleus", poidsBleus);
+    cv::imshow("Poids poidsRouges", poidsRouges);
+    waitKey();
+}
 
 void pois()
 {
     Mat pois = cv::imread(IMAGE_PATH("petitsPois.png"));
-    Mat *caneaux = new Mat[3];
     Mat red, blue, redNeg, blueNeg;
     cv::imshow("poids", pois);
 
-    split(pois, caneaux);
-    red = caneaux[0];
-    blue = caneaux[2];
-    delete[] caneaux;
+    Mat channels[3];
+    split(pois, channels);
+    red = channels[0];
+    blue = channels[2];
+
 
     threshold(red, redNeg, 0, 255, THRESH_BINARY_INV);
     threshold(blue, blueNeg, 0, 255, THRESH_BINARY_INV);
@@ -97,7 +116,7 @@ void pois()
 int main(int argc, const char *argv[]) {
     //tools();
    // balanes();
-    pois();
+    pois2();
 //    Mat lena = cv::imread("/Users/jordanmeurant/CLionProjects/Vision1/ImagesEtape5/vaisseaux.jpg");
 //    Mat frame = lena.clone();
 //
