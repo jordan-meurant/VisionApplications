@@ -1,5 +1,6 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <fstream>
 
 #define CVUI_IMPLEMENTATION
 #include "cvui.h"
@@ -7,10 +8,26 @@
 using namespace std;
 
 #define WINDOW_NAME    "CVUI Test"
-#define IMAGE_PATH(filename) std::string("/Users/jordanmeurant/CLionProjects/Vision1/ImagesEtape5/") + filename
+#define IMAGE_PATH(filename) std::string("D:\\Users\\mb624\\Documents\\GitHub\\VisionApplications\\ImagesEtape5\\") + filename
+#define delta_time(start, end) std::to_string(std::chrono::duration<double, std::milli>(end - start).count()) + std::string("ms")
+#define delta_time_db(start, end) std::chrono::duration<double, std::milli>(end - start).count()
+#define imshow(title, frame) if(show_native)cv::imshow(title, frame)
+
 
 using namespace cv;
 using namespace cvui;
+
+bool show_native = true;
+
+
+void save_delta_time(double dt)
+{
+    ofstream out("performances.txt", ios::out);
+    if (out.is_open())
+    {
+        out << dt << endl;
+    }
+}
 
 Mat imreconstruct(Mat &image, Mat &mask, int radius = 3) {
     int counter = 0;
@@ -30,32 +47,39 @@ void tools() {
     Mat frame, out, opening, th;
 
     cvtColor(tools, frame, COLOR_BGR2GRAY);
-    cv::imshow("Image tools", tools);
 
-    morphologyEx(frame, opening, MORPH_OPEN, getStructuringElement(MORPH_ELLIPSE, Size(21, 21)));
+    auto t_start = std::chrono::high_resolution_clock::now();
+
+    morphologyEx(frame, opening, MORPH_OPEN, getStructuringElement(MORPH_RECT, Size(21, 21)));
     subtract(frame, opening, frame);
-    cv::imshow("Image after opening", frame);
 
     threshold(frame, th, 0, 255, THRESH_BINARY + THRESH_OTSU);
-    cv::imshow("Result", th);
+
+    auto t_end = std::chrono::high_resolution_clock::now();
+
+    save_delta_time(delta_time_db(t_start, t_end));
+    imwrite("tools-result.png", th);
+
+    imshow("Tools d'origine: temps => " + delta_time(t_start, t_end), tools);
+    imshow("Result", th);
     waitKey();
 }
 
 void balanes() {
     Mat frame, seuillage, erosion;
     Mat balanes = cv::imread(IMAGE_PATH("balanes.png"));
+    Mat origin = balanes.clone();
     cvtColor(balanes, frame, COLOR_BGR2GRAY);
     cvtColor(balanes, balanes, COLOR_BGR2GRAY);
 
+    auto t_start = std::chrono::high_resolution_clock::now();
+
     threshold(frame, seuillage, 0, 255, THRESH_BINARY + THRESH_OTSU);
-    cv::imshow("GRAND ", seuillage);
     morphologyEx(seuillage, erosion, MORPH_OPEN, getStructuringElement(MORPH_ELLIPSE, Size(15, 15)));
     const Mat &rec = imreconstruct(erosion, seuillage);
 
-
     Mat grandesBalanes;
     bitwise_and(rec, balanes, grandesBalanes);
-    cv::imshow("GRAND Balanes", grandesBalanes);
 
     Mat petitesBalanes;
     subtract(seuillage, rec, petitesBalanes);
@@ -63,7 +87,15 @@ void balanes() {
 
     Mat reconstructionPetitesBalanes = imreconstruct(petitesBalanes, seuillage);
     bitwise_and(reconstructionPetitesBalanes, balanes, petitesBalanes);
-    cv::imshow("PETITES Balanes", petitesBalanes);
+
+    auto t_end = std::chrono::high_resolution_clock::now();
+
+    save_delta_time(delta_time_db(t_start, t_end));
+    imwrite("petites-balanes-result.png", petitesBalanes);
+    imwrite("grandes-balanes-result.png", grandesBalanes);
+    imshow("balanes d'origine: temps => " + delta_time(t_start, t_end), origin);
+    imshow("GRAND Balanes", grandesBalanes);
+    imshow("PETITES Balanes", petitesBalanes);
     waitKey();
 }
 void pois2(){
@@ -73,7 +105,7 @@ void pois2(){
     cvtColor(pois, pois, COLOR_BGR2GRAY);
 
     bitwise_not(pois,pois);
-    cv::imshow("poids", pois);
+    imshow("poids", pois);
 
     threshold(channels[0], poidsBleus, 0, 255, THRESH_BINARY_INV);
     morphologyEx(poidsBleus, poidsBleus, MORPH_ERODE, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
@@ -81,8 +113,8 @@ void pois2(){
     threshold(channels[2], poidsRouges, 0, 255, THRESH_BINARY_INV);
     morphologyEx(poidsRouges, poidsRouges, MORPH_ERODE, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
 
-    cv::imshow("Poids bleus", poidsBleus);
-    cv::imshow("Poids poidsRouges", poidsRouges);
+    imshow("Poids bleus", poidsBleus);
+    imshow("Poids poidsRouges", poidsRouges);
     waitKey();
 }
 
@@ -90,9 +122,10 @@ void pois()
 {
     Mat pois = cv::imread(IMAGE_PATH("petitsPois.png"));
     Mat red, blue, redNeg, blueNeg;
-    cv::imshow("poids", pois);
-
     Mat channels[3];
+
+    auto t_start = std::chrono::high_resolution_clock::now();
+    
     split(pois, channels);
     red = channels[0];
     blue = channels[2];
@@ -107,55 +140,39 @@ void pois()
     red = imreconstruct(red, redNeg);
     blue = imreconstruct(blue, blueNeg);
 
+    auto t_end = std::chrono::high_resolution_clock::now();
 
-    cv::imshow("red", red);
-    cv::imshow("blue", blue);
+    save_delta_time(delta_time_db(t_start, t_end));
+    imwrite("poids-rouges-result.png", red);
+    imwrite("poids-bleus-result.png", blue);
+    imshow("poids: temps => " + delta_time(t_start, t_end), pois);
+    imshow("red", red);
+    imshow("blue", blue);
+    
     waitKey();
 }
 
-int main(int argc, const char *argv[]) {
-    //tools();
-   // balanes();
-    pois2();
-//    Mat lena = cv::imread("/Users/jordanmeurant/CLionProjects/Vision1/ImagesEtape5/vaisseaux.jpg");
-//    Mat frame = lena.clone();
-//
-//
-//    int scale_percent = 100;
-//    int width = int(frame.rows * scale_percent / 100);
-//    int height = int(frame.cols * scale_percent / 100);
-//    Size dim = Size(width, height);
-//
-//    // resize image
-//    Mat resizedImage;
-//    resize(frame, resizedImage, dim, INTER_LINEAR);
-//
-//
-//    int low_threshold = 50, high_threshold = 150;
-//    bool use_canny = false;
-//
-//    namedWindow(WINDOW_NAME);
-//    init(WINDOW_NAME);
-//
-//    while (true) {
-//        if (use_canny) {
-//            cvtColor(resizedImage, frame, COLOR_BGR2GRAY);
-//            Canny(frame, frame, low_threshold, high_threshold, 3);
-//        } else {
-//            resizedImage.copyTo(frame);
-//        }
-//
-//        window(frame, 10, 50, 180 , 180 , "Settings");
-//        checkbox(frame, 15, 80, "Use Canny Edge", &use_canny);
-//        cvui::trackbar(frame, 15, 110, 165, &low_threshold, 5, 150);
-//        cvui::trackbar(frame, 15, 180, 165, &high_threshold, 80, 300);
-//
-//        update();
-//        cv::imshow(WINDOW_NAME, frame);
-//
-//        if (cv::waitKey(30) == 27) {
-//            break;
-//        }
-//    }
-//    return 0;
+
+int main(int argc, char* argv[])
+{
+    if (argc > 1)
+    {
+        if (argc == 3)
+            show_native = false;
+        if (strcmp(argv[1], "poids") == 0)
+        {
+            pois();
+        }
+        else if (strcmp(argv[1], "tools") == 0)
+        {
+            tools();
+        }
+        else if (strcmp(argv[1], "balanes") == 0)
+        {
+            balanes();
+        }
+        
+    }
+
+    return 0;
 }
