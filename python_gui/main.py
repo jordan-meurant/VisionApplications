@@ -13,12 +13,12 @@ class Gui(tkinter.Tk):
         self.wm_title("Arthur D. & Jordan M. Application")
         self.wm_minsize(width=300, height=300)
         self.images_dict = {
-            'poids' : 'petitsPois.png',
+            'pois' : 'petitsPois.png',
             'tools' : 'tools.png',
             'balanes' : 'balanes.png'
         }
         self.result_images_dict = {
-            'poids': ['poids-rouges-result.png', 'poids-bleus-result.png'],
+            'pois': ['poids-rouges-result.png', 'poids-bleus-result.png'],
             'tools': ['tools-result.png'],
             'balanes' : ['petites-balanes-result.png', 'grandes-balanes-result.png']
         }
@@ -36,8 +36,8 @@ class Gui(tkinter.Tk):
     def setup_widgets(self):
         
         self.option_label = tkinter.Label(self, text="Choose an application", font='Helvetica 15 bold')
-        self.option_box=tkinter.OptionMenu(self, self.application_type, 'poids', 'balanes', 'tools', command=self._on_option_changes)
-        self.application_type.set("poids")
+        self.option_box=tkinter.OptionMenu(self, self.application_type, 'pois', 'balanes', 'tools', command=self._on_option_changes)
+        self.application_type.set("pois")
 
         self.performances_label = tkinter.Label(self, textvariable=self.performance_txt, font='Helvetica 11 bold')
         
