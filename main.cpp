@@ -27,7 +27,10 @@ void save_delta_time(double dt)
     {
         out << dt << endl;
     }
+    out.close();
 }
+
+
 
 Mat imreconstruct(Mat &image, Mat &mask, int radius = 3) {
     int counter = 0;
@@ -41,7 +44,7 @@ Mat imreconstruct(Mat &image, Mat &mask, int radius = 3) {
     }
 }
 
-void tools() {
+double tools() {
 
     Mat tools = cv::imread(IMAGE_PATH("tools.png"));
     Mat frame, out, opening, th;
@@ -62,10 +65,11 @@ void tools() {
 
     imshow("Tools d'origine: temps => " + delta_time(t_start, t_end), tools);
     imshow("Result", th);
-    waitKey();
+    //waitKey();
+    return delta_time_db(t_start, t_end);
 }
 
-void balanes() {
+double balanes() {
     Mat frame, seuillage, erosion;
     Mat balanes = cv::imread(IMAGE_PATH("balanes.png"));
     Mat origin = balanes.clone();
@@ -96,29 +100,11 @@ void balanes() {
     imshow("balanes d'origine: temps => " + delta_time(t_start, t_end), origin);
     imshow("GRAND Balanes", grandesBalanes);
     imshow("PETITES Balanes", petitesBalanes);
-    waitKey();
-}
-void pois2(){
-    Mat pois = cv::imread(IMAGE_PATH("petitsPois.png"));
-    Mat channels[3], poidsBleus, poidsRouges;;
-    split(pois, channels);
-    cvtColor(pois, pois, COLOR_BGR2GRAY);
-
-    bitwise_not(pois,pois);
-    imshow("poids", pois);
-
-    threshold(channels[0], poidsBleus, 0, 255, THRESH_BINARY_INV);
-    morphologyEx(poidsBleus, poidsBleus, MORPH_ERODE, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
-
-    threshold(channels[2], poidsRouges, 0, 255, THRESH_BINARY_INV);
-    morphologyEx(poidsRouges, poidsRouges, MORPH_ERODE, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
-
-    imshow("Poids bleus", poidsBleus);
-    imshow("Poids poidsRouges", poidsRouges);
-    waitKey();
+    //waitKey();
+    return delta_time_db(t_start, t_end);
 }
 
-void pois()
+double pois()
 {
     Mat pois = cv::imread(IMAGE_PATH("petitsPois.png"));
     Mat red, blue, redNeg, blueNeg;
@@ -149,9 +135,30 @@ void pois()
     imshow("red", red);
     imshow("blue", blue);
     
-    waitKey();
+    //waitKey();
+    return delta_time_db(t_start, t_end);
 }
 
+void perf_data_set_generation(int n)
+{
+    ofstream out("D:\\Users\\mb624\\Documents\\GitHub\\VisionApplications\\perf-image-processing.csv", ios::out | ios::app);
+    if (out.is_open())
+    {
+        for (int i = 0; i < n; i++)
+        {
+            if (i % 50 == 0)
+                std::cout << "Iteration: " << i << std::endl;
+            auto&& dt1 = tools();
+            auto&& dt2 = balanes();
+            auto&& dt3 = pois();
+            out << "tools;" << (int)dt1 << ";c++" << endl
+                << "balanes;" << (int)dt2 << ";c++" << endl
+                << "pois;" << (int)dt3 << ";c++" << endl;
+
+        }
+    }
+    out.close();
+}
 
 int main(int argc, char* argv[])
 {
@@ -172,6 +179,11 @@ int main(int argc, char* argv[])
             balanes();
         }
         
+    }
+    else
+    {
+        show_native = false;
+        perf_data_set_generation(300);
     }
 
     return 0;
