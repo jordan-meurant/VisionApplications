@@ -17,14 +17,30 @@ summary(data)
 
 boxplot(data$exe_time_ms)
 plot(data$exe_time_ms)
+abline(v = 900)
+abline(h = 200)
+abline(h = 80)
 
 tools_java <- data$exe_time_ms[data$lang=="java" & data$app_type=="tools"]
-tools_cpp <- data$exe_time_ms[data$lang=="c++" & data$app_type=="tools"]
+tools_cpp <- data$exe_time_ms[data$lang=="c++" & data$app_type=="tools"][1:300]
 balanes_java <- data$exe_time_ms[data$lang=="java" & data$app_type=="balanes"]
-balanes_cpp <- data$exe_time_ms[data$lang=="c++" & data$app_type=="balanes"]
+balanes_cpp <- data$exe_time_ms[data$lang=="c++" & data$app_type=="balanes"][1:300]
 pois_java <- data$exe_time_ms[data$lang=="java" & data$app_type=="pois"]
-pois_cpp <- data$exe_time_ms[data$lang=="c++" & data$app_type=="pois"]
+pois_cpp <- data$exe_time_ms[data$lang=="c++" & data$app_type=="pois"][1:300]
 balanes_rect_cpp <- data_balanes_rect$exe_time_ms
+
+par(mfrow=c(4, 2))
+plot(tools_java)
+plot(tools_cpp)
+plot(balanes_java)
+plot(balanes_cpp)
+plot(pois_java)
+plot(pois_cpp)
+
+par(mfrow=c(1, 2))
+plot(balanes_java)
+plot(balanes_rect_cpp)
+
 
 tools_java = sort(tools_java)
 tools_cpp = sort(tools_cpp)
@@ -33,25 +49,6 @@ balanes_cpp = sort(balanes_cpp)
 pois_java = sort(pois_java)
 pois_cpp = sort(pois_cpp)
 balanes_rect_cpp <- sort(balanes_rect_cpp)
-
-par(mfrow=c(3, 2))
-boxplot(tools_java, main="tools java")
-boxplot(tools_cpp, main="tools c++")
-boxplot(balanes_java, main="balanes java")
-boxplot(balanes_cpp, main="balanes c++")
-boxplot(pois_java, main="pois java")
-boxplot(pois_cpp, main="pois c++")
-
-boxplot(balanes_rect_cpp)
-
-tools_java <- head(tools_java, -7)
-tools_cpp <- head(tools_cpp, -4)
-balanes_java <- head(balanes_java, -6)
-balanes_cpp <- head(balanes_cpp, -2)
-pois_java <- head(pois_java, -7)
-pois_cpp <- head(pois_cpp, -7)
-
-balanes_rect_cpp <- head(balanes_rect_cpp, -7)
 
 tools_java.mu <- mean(tools_java)
 tools_cpp.mu <- mean(tools_cpp)
