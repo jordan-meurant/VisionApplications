@@ -138,6 +138,92 @@ double pois()
     return delta_time_db(t_start, t_end);
 }
 
+/*void  vaisseaux() {
+    Mat v = cv::imread(IMAGE_PATH("vaisseaux.jpg"));
+
+    Mat channels[3];
+
+    auto t_start = std::chrono::high_resolution_clock::now();
+
+    split(v, channels);
+    Mat red = channels[0], green = channels[1], blue = channels[2];
+
+
+    Mat originRed = red.clone();
+    Mat originGreen = green.clone();
+    Mat originBlue = blue.clone();
+    morphologyEx(red, red, MORPH_ERODE, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
+    morphologyEx(green, green, MORPH_ERODE, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
+    morphologyEx(blue, blue, MORPH_ERODE, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
+
+    medianBlur(red, red, 7);
+    medianBlur(green, green, 7);
+    medianBlur(blue, blue, 7);
+    threshold(red, red, 0, 255, THRESH_BINARY);
+    threshold(green, green, 0, 255, THRESH_BINARY);
+    threshold(blue, blue, 0, 255, THRESH_BINARY);
+    imshow("red", red);
+    imshow("green", green);
+    imshow("blue", blue);
+
+    Mat canvasRed(red.rows, red.cols, CV_8UC1, Scalar(0, 0, 0));
+    Mat canvasGreen(green.rows, green.cols, CV_8UC1, Scalar(0, 0, 0));
+    Mat canvasBlue(blue.rows, blue.cols, CV_8UC1, Scalar(0, 0, 0));
+    imshow("canvasRed", canvasRed);
+    imshow("canvasGreen", canvasGreen);
+    imshow("canvasBlue", canvasBlue);
+
+
+    Mat cannyRed_output, cannyGreen_output, cannyBlue_output;
+    Canny(red, cannyRed_output, 100, 200);
+    Canny(green, cannyGreen_output, 100, 200);
+    Canny(blue, cannyBlue_output, 100, 200);
+
+    vector<vector<Point> > contoursRed, contoursGreen, contoursBlue;
+    vector<Vec4i> hierarchyRed, hierarchyGreen, hierarchyBlue;
+    findContours(cannyRed_output, contoursRed, hierarchyRed, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+    findContours(cannyGreen_output, contoursGreen, hierarchyGreen, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+    findContours(cannyBlue_output, contoursBlue, hierarchyBlue, RETR_EXTERNAL, CHAIN_APPROX_NONE);
+
+    Mat drawingRed = Mat::zeros(cannyRed_output.size(), CV_8UC3);
+    Mat drawingGreen = Mat::zeros(cannyGreen_output.size(), CV_8UC3);
+    Mat drawingBlue = Mat::zeros(cannyBlue_output.size(), CV_8UC3);
+    //for(size_t i = 0; i< contours.size(); i++){
+    drawContours(canvasRed, contoursRed, (int)29, Scalar(0, 255, 0), 2, LINE_8, hierarchyRed, 0);
+    drawContours(canvasGreen, contoursGreen, (int)29, Scalar(0, 255, 0), 2, LINE_8, hierarchyGreen, 0);
+    drawContours(canvasBlue, contoursBlue, (int)29, Scalar(0, 255, 0), 2, LINE_8, hierarchyBlue, 0);
+    //int d = getMaxAreaContourId(contours);
+    //cout << d;
+//}
+
+    fillConvexPoly(canvasRed, contoursRed[29], Scalar(255, 255, 255));
+    fillConvexPoly(canvasGreen, contoursGreen[29], Scalar(255, 255, 255));
+    fillConvexPoly(canvasBlue, contoursBlue[29], Scalar(255, 255, 255));
+
+    imshow("masquer", canvasRed);
+    imshow("masqueg", canvasGreen);
+    imshow("masqueb", canvasBlue);
+    bitwise_and(originRed, canvasRed, canvasRed);
+    bitwise_and(originGreen, canvasGreen, canvasGreen);
+    bitwise_and(originBlue, canvasBlue, canvasBlue);
+
+    Mat planet = cv::imread(IMAGE_PATH("planete.jpg"));
+    Mat channelsPlanet[3], destChannels[3];
+    split(planet, channelsPlanet);
+    //  create 3-channel grayscale version
+    //subtract(gray,imreconstruct(copy,canvas),dest);
+    bitwise_or(channelsPlanet[0], imreconstruct(originRed, canvasRed), destChannels[0]);
+    bitwise_or(channelsPlanet[1], imreconstruct(originGreen, canvasGreen), destChannels[1]);
+    bitwise_or(channelsPlanet[2], imreconstruct(originBlue, canvasBlue), destChannels[2]);
+
+
+    //cvtColor(dest,dest, COLOR_GRAY2BGR);
+    merge(destChannels, 3, planet);
+    imshow("Result", planet);
+
+    waitKey();
+};*/
+
 void perf_data_set_generation(int n)
 {
     ofstream out("D:\\Users\\mb624\\Documents\\GitHub\\VisionApplications\\perf-image-processing.csv", ios::out | ios::app);
