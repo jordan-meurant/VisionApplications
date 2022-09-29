@@ -33,7 +33,6 @@ void save_delta_time(double dt)
 
 
 Mat imreconstruct(Mat &image, Mat &mask, int radius = 3) {
-    int counter = 0;
     while (1) {
         Mat mat;
         morphologyEx(image, mat, MORPH_DILATE, getStructuringElement(MORPH_ELLIPSE, Size(radius, radius)));
