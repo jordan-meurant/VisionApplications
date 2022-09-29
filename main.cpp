@@ -143,7 +143,10 @@ void  vaisseaux() {
     Mat v = cv::imread(IMAGE_PATH("vaisseaux.jpg"));
 
     cvtColor(v, v, COLOR_BGR2GRAY);
+
+    auto t_start = std::chrono::high_resolution_clock::now();
     Mat copy = v.clone();
+
     morphologyEx(v, v, MORPH_ERODE, getStructuringElement(MORPH_ELLIPSE, Size(3, 3)));
 
     medianBlur(v, v, 7);
@@ -162,11 +165,7 @@ void  vaisseaux() {
     findContours(canny_output, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_NONE);
 
     Mat drawing = Mat::zeros(canny_output.size(), CV_8UC3);
-    //for(size_t i = 0; i< contours.size(); i++){
     drawContours(canvas, contours, (int)29, Scalar(0, 255, 0), 2, LINE_8, hierarchy, 0);
-    //int d = getMaxAreaContourId(contours);
-    //cout << d;
-//}
 
     fillConvexPoly(canvas, contours[29], Scalar(255, 255, 255));
 
@@ -174,15 +173,16 @@ void  vaisseaux() {
     bitwise_and(copy, canvas, canvas);
 
     Mat planet = cv::imread(IMAGE_PATH("planete.jpg"));
-    //  create 3-channel grayscale version
     Mat gray;
     cvtColor(planet, gray, COLOR_BGR2GRAY);
     Mat dest;
-    //subtract(gray,imreconstruct(copy,canvas),dest);
     bitwise_or(gray, imreconstruct(copy, canvas), dest);
 
+    auto t_end = std::chrono::high_resolution_clock::now();
 
-    //cvtColor(dest,dest, COLOR_GRAY2BGR);
+    save_delta_time(delta_time_db(t_start, t_end));
+
+    imwrite("vaisseaux-result.jpg", dest);
     imshow("Result", dest);
 
     waitKey();
@@ -227,13 +227,16 @@ int main(int argc, char* argv[])
         {
             balanes();
         }
+        else if (strcmp(argv[1], "vaisseaux") == 0)
+        {
+            vaisseaux();
+        }
         
     }
     else
     {
-        vaisseaux();
-        //show_native = false;
-        //perf_data_set_generation(300);
+        show_native = false;
+        perf_data_set_generation(300);
     }
 
     return 0;

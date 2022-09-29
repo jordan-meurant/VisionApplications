@@ -15,12 +15,14 @@ class Gui(tkinter.Tk):
         self.images_dict = {
             'pois' : 'petitsPois.png',
             'tools' : 'tools.png',
-            'balanes' : 'balanes.png'
+            'balanes' : 'balanes.png',
+            'vaisseaux': 'planete.jpg'
         }
         self.result_images_dict = {
             'pois': ['poids-rouges-result.png', 'poids-bleus-result.png'],
             'tools': ['tools-result.png'],
-            'balanes' : ['petites-balanes-result.png', 'grandes-balanes-result.png']
+            'balanes' : ['petites-balanes-result.png', 'grandes-balanes-result.png'],
+            'vaisseaux': ['vaisseaux-result.jpg']
         }
         self.application_type = tkinter.StringVar()
         self.performance_txt = tkinter.StringVar()
@@ -36,7 +38,7 @@ class Gui(tkinter.Tk):
     def setup_widgets(self):
         
         self.option_label = tkinter.Label(self, text="Choose an application", font='Helvetica 15 bold')
-        self.option_box=tkinter.OptionMenu(self, self.application_type, 'pois', 'balanes', 'tools', command=self._on_option_changes)
+        self.option_box=tkinter.OptionMenu(self, self.application_type, 'pois', 'balanes', 'tools', 'vaisseaux', command=self._on_option_changes)
         self.application_type.set("pois")
 
         self.performances_label = tkinter.Label(self, textvariable=self.performance_txt, font='Helvetica 11 bold')
